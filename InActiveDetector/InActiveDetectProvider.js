@@ -3,7 +3,7 @@ let timeOutHandler
 let action
 let timeoutRunning = false
 
-const clearTimeoutHandler = () => {
+const _clearTimeoutHandler = () => {
   timeoutRunning = false
   clearTimeout(timeOutHandler)
 }
@@ -28,6 +28,6 @@ export const startTimeout = () => {
 }
 
 export const restartTimeout = async () => {
-  await clearTimeoutHandler()
+  await _clearTimeoutHandler()
   startTimeout()
 }

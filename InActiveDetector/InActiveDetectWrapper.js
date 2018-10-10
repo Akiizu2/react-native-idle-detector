@@ -2,11 +2,20 @@ import React, { Component } from 'react'
 import {
   View,
   AppState,
-  ScrollView,
+  StyleSheet,
 } from 'react-native'
 import MessageQueue from 'react-native/Libraries/BatchedBridge/MessageQueue'
 
 import { setTimeoutAction, startTimeout, restartTimeout } from './InActiveDetectProvider'
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }
+})
 
 class InActiveDetector extends Component {
 
@@ -23,12 +32,12 @@ class InActiveDetector extends Component {
   }
 
   componentDidMount() {
-    this.initialInActiveDetector()
+    this._initialInActiveDetector()
 
     MessageQueue.spy(data => {
       const filterd = data.method === 'receiveTouches'
-      if (!this.isTouching && filterd) {
-        this.isTouching = true
+      if (filterd) {
+        this.isTouching = true // Review This code again may be occur bad performance
         restartTimeout()
       } else if (data.method === 'receiveEvent' && data.args[1] === 'topScrollEndDrag') {
         this.isTouching = false
@@ -69,7 +78,7 @@ class InActiveDetector extends Component {
     }
   }
 
-  initialInActiveDetector = () => {
+  _initialInActiveDetector = () => {
     const { onIdle, isIdled, maxIdleDuration } = this.props
     setTimeoutAction(() => {
       if (!isIdled) {
@@ -82,29 +91,10 @@ class InActiveDetector extends Component {
     startTimeout()
   }
 
-
   render() {
     return (
-      <View
-        style={{
-          flex: 1,
-          alignSelf: 'stretch',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-
-      >
-        <ScrollView
-          contentContainerStyle={{
-            flex: 1,
-            alignSelf: 'stretch',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          pointerEvents='box-none'
-        >
-          {this.props.children}
-        </ScrollView>
+      <View style={styles.container}>
+        {this.props.children}
       </View>
     )
   }
