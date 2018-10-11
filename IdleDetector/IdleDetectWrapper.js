@@ -1,25 +1,13 @@
 import React, { Component } from 'react'
-import {
-  View,
-  AppState,
-  StyleSheet,
-} from 'react-native'
+import { AppState } from 'react-native'
 import MessageQueue from 'react-native/Libraries/BatchedBridge/MessageQueue'
+import PropTypes from 'prop-types'
 
 import {
   setTimeoutAction,
   startTimeout,
   restartTimeout
 } from './IdleDetectProvider'
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignSelf: 'stretch',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }
-})
 
 class IdleDetectWrapper extends Component {
 
@@ -33,6 +21,12 @@ class IdleDetectWrapper extends Component {
   static defaultProps = {
     onIdle() { },
     maxIdleDuration: 5000
+  }
+
+  static propTypes = {
+    onIdle: PropTypes.func,
+    maxIdleDuration: PropTypes.number,
+    children: PropTypes.element,
   }
 
   componentDidMount() {
@@ -96,7 +90,11 @@ class IdleDetectWrapper extends Component {
    * initialize action that be called after idle and idle duration
    */
   _initialInActiveDetector = () => {
-    const { onIdle, isIdled, maxIdleDuration } = this.props
+    const {
+      onIdle,
+      maxIdleDuration,
+    } = this.props
+    const { isIdled } = this.state
     setTimeoutAction(() => {
       if (!isIdled) {
         onIdle()
@@ -110,9 +108,9 @@ class IdleDetectWrapper extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <React.Fragment>
         {this.props.children}
-      </View>
+      </React.Fragment>
     )
   }
 }
