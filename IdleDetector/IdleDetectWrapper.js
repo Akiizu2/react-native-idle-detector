@@ -6,7 +6,11 @@ import {
 } from 'react-native'
 import MessageQueue from 'react-native/Libraries/BatchedBridge/MessageQueue'
 
-import { setTimeoutAction, startTimeout, restartTimeout } from './InActiveDetectProvider'
+import {
+  setTimeoutAction,
+  startTimeout,
+  restartTimeout
+} from './IdleDetectProvider'
 
 const styles = StyleSheet.create({
   container: {
@@ -17,7 +21,7 @@ const styles = StyleSheet.create({
   }
 })
 
-class InActiveDetector extends Component {
+class IdleDetectWrapper extends Component {
 
   state = {
     inActiveTimeStamp: 0,
@@ -34,15 +38,17 @@ class InActiveDetector extends Component {
   componentDidMount() {
     this._initialInActiveDetector()
 
+    /** Spy the message on ReactNative Bridge and detect touch event */
     MessageQueue.spy(data => {
       const filterd = data.method === 'receiveTouches'
       if (filterd) {
-        this.isTouching = true // Review This code again may be occur bad performance
+        this.isTouching = true
         restartTimeout()
       } else if (data.method === 'receiveEvent' && data.args[1] === 'topScrollEndDrag') {
         this.isTouching = false
       }
     })
+    /** Handle on AppState change active => background/inactive  */
     AppState.addEventListener('change', this._handleAppStateChange);
   }
 
@@ -50,18 +56,23 @@ class InActiveDetector extends Component {
     AppState.removeEventListener('change', this._handleAppStateChange);
   }
 
+  /**
+   * _handleAppStateChange
+   * ---
+   * @description
+   * handler idle time when appState be changed
+   * @param {string} nextAppState
+   */
   _handleAppStateChange = (nextAppState) => {
+    const today = new Date();
+    const nowUnix = today.getTime()
     if (nextAppState === 'inactive') {
-      const today = new Date();
-      const nowUnix = today.getTime()
       this.setState({
         inActiveTimeStamp: nowUnix
       })
     } else if (nextAppState === 'active') {
       const { inActiveTimeStamp, isIdled } = this.state
       if (inActiveTimeStamp > 0) {
-        const today = new Date();
-        const nowUnix = today.getTime()
         const inActiveDuration = nowUnix - inActiveTimeStamp
         const { maxIdleDuration, onIdle } = this.props
         if (inActiveDuration > maxIdleDuration) {
@@ -78,6 +89,12 @@ class InActiveDetector extends Component {
     }
   }
 
+  /**
+   * _initialInActiveDetector
+   * ---
+   * @description
+   * initialize action that be called after idle and idle duration
+   */
   _initialInActiveDetector = () => {
     const { onIdle, isIdled, maxIdleDuration } = this.props
     setTimeoutAction(() => {
@@ -100,4 +117,4 @@ class InActiveDetector extends Component {
   }
 }
 
-export default InActiveDetector;
+export default IdleDetectWrapper;
