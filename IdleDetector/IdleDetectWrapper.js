@@ -20,34 +20,40 @@ class IdleDetectWrapper extends Component {
 
   static defaultProps = {
     onIdle() { },
-    maxIdleDuration: 5000
+    maxIdleDuration: 5000,
+    disabled: false,
   }
 
   static propTypes = {
     onIdle: PropTypes.func,
     maxIdleDuration: PropTypes.number,
     children: PropTypes.element,
+    disabled: PropTypes.bool,
   }
 
   componentDidMount() {
-    this._initialInActiveDetector()
+    if (!this.props.disabled) {
+      this._initialInActiveDetector()
 
-    /** Spy the message on ReactNative Bridge and detect touch event */
-    MessageQueue.spy(data => {
-      const filterd = data.method === 'receiveTouches'
-      if (filterd) {
-        this.isTouching = true
-        restartTimeout()
-      } else if (data.method === 'receiveEvent' && data.args[1] === 'topScrollEndDrag') {
-        this.isTouching = false
-      }
-    })
-    /** Handle on AppState change active => background/inactive  */
-    AppState.addEventListener('change', this._handleAppStateChange);
+      /** Spy the message on ReactNative Bridge and detect touch event */
+      MessageQueue.spy(data => {
+        const filterd = data.method === 'receiveTouches'
+        if (filterd) {
+          this.isTouching = true
+          restartTimeout()
+        } else if (data.method === 'receiveEvent' && data.args[1] === 'topScrollEndDrag') {
+          this.isTouching = false
+        }
+      })
+      /** Handle on AppState change active => background/inactive  */
+      AppState.addEventListener('change', this._handleAppStateChange);
+    }
   }
 
   componentWillUnmount() {
-    AppState.removeEventListener('change', this._handleAppStateChange);
+    if (!this.props.disabled) {
+      AppState.removeEventListener('change', this._handleAppStateChange);
+    }
   }
 
   /**
