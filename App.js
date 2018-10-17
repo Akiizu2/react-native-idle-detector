@@ -11,6 +11,7 @@ import {
 import { IdleDetector } from './IdleDetector'
 
 export default class App extends Component {
+
   render() {
     return (
       <IdleDetector

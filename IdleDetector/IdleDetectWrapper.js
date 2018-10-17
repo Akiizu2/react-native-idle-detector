@@ -93,7 +93,7 @@ class IdleDetectWrapper extends Component {
    * _initialInActiveDetector
    * ---
    * @description
-   * initialize action that be called after idle and idle duration
+   * initialize action that be called after idle and set up idle duration
    */
   _initialInActiveDetector = () => {
     const {
