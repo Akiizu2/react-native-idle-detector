@@ -5,6 +5,7 @@ import {
   Text,
   Button,
   View,
+  Alert,
 } from 'react-native';
 
 import { IdleDetector } from './IdleDetector'
@@ -13,7 +14,7 @@ export default class App extends Component {
   render() {
     return (
       <IdleDetector
-        onIdle={() => alert("IDLE!!!!")}
+        onIdle={() => Alert.alert('IDLE!!')}
         maxIdleDuration={5000}
       >
         <ScrollView>
